@@ -24,7 +24,8 @@ import {
   RevealText, 
   SkillCard, 
   SplitText,
-  ContactForm 
+  ContactForm,
+  Snake
 } from '@/components';
 
 const projects = [
@@ -112,6 +113,7 @@ const Index = () => {
   return (
     <div className="min-h-screen overflow-x-hidden bg-background text-foreground">
       <Cursor />
+      <Snake />
       <Navbar />
       
       {/* Hero Section */}

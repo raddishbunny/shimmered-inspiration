@@ -9,3 +9,4 @@ export { default as RevealText } from './RevealText';
 export { default as SkillCard } from './SkillCard';
 export { default as SplitText } from './SplitText';
 export { default as ContactForm } from './ContactForm';
+export { default as Snake } from './Snake';
