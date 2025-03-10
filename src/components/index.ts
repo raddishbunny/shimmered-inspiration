@@ -10,3 +10,6 @@ export { default as SkillCard } from './SkillCard';
 export { default as SplitText } from './SplitText';
 export { default as ContactForm } from './ContactForm';
 export { default as Snake } from './Snake';
+
+// Export sections from their barrel file
+export * from './sections';
