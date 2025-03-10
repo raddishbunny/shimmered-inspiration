@@ -10,8 +10,10 @@ import {
   Server, 
   Smartphone,
   TerminalSquare, 
-  Zap 
+  Zap,
+  Mail // Add Mail icon import 
 } from 'lucide-react';
+import { toast } from 'sonner'; // Add toast import from sonner
 import { 
   Cursor, 
   FadeIn, 
