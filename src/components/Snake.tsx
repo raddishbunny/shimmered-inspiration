@@ -30,9 +30,9 @@ const Snake = () => {
     const points: Point[] = [];
     const segmentLength = 30; // Longer segments for a bigger snake
     const amplitude = 100; // Increased amplitude for more pronounced wave pattern
-    const period = 12000; // 12 seconds for full back and forth cycle (faster)
+    const period = 12000; // 12 seconds for full cycle
     
-    // Initialize points
+    // Initialize points (initially off-screen to the left)
     for (let i = 0; i < segments; i++) {
       points.push({
         x: -100 - (i * segmentLength),
@@ -121,21 +121,27 @@ const Snake = () => {
       const elapsed = Date.now() - startTime;
       let progress = (elapsed % period) / period;
       
-      // Determine if snake should be visible and which direction it's moving
-      if (progress < 0.45) {
-        // Snake moving right
+      // Calculate the total length of the snake
+      const totalSnakeLength = segments * segmentLength;
+      
+      // Going from left to right (first half of the cycle)
+      if (progress < 0.4) {
         direction = 1;
-        // Adjust progress to cover full journey in first 45% of the time
-        let adjustedProgress = progress / 0.45;
         
-        // Calculate leading X position to move from left to right
-        const leadingX = -200 + (window.innerWidth + 400) * adjustedProgress;
+        // Normalized progress for the first half (0-1 range)
+        const leftToRightProgress = progress / 0.4;
         
-        // Calculate vertical wave pattern using sine
-        points[0].x = leadingX;
-        points[0].y = window.innerHeight / 2 + Math.sin(adjustedProgress * Math.PI * 3) * amplitude;
+        // Calculate the right edge of the canvas plus a bit more
+        const rightEdge = window.innerWidth + totalSnakeLength;
         
-        // Update following segments with physics-based following
+        // Calculate how far to move the snake
+        const moveDistance = -totalSnakeLength + leftToRightProgress * (rightEdge + totalSnakeLength);
+        
+        // Update head position with a sine wave
+        points[0].x = moveDistance;
+        points[0].y = window.innerHeight / 2 + Math.sin(leftToRightProgress * Math.PI * 4) * amplitude;
+        
+        // Update following segments
         for (let i = 1; i < segments; i++) {
           const dx = points[i-1].x - points[i].x;
           const dy = points[i-1].y - points[i].y;
@@ -148,23 +154,33 @@ const Snake = () => {
           }
         }
         
-        // Draw snake
-        drawSnake();
+        // Only draw if at least the head is visible
+        if (points[0].x > -100) {
+          drawSnake();
+        }
       } 
-      else if (progress > 0.55 && progress < 1) {
-        // Snake moving left
+      // Pausing between animations
+      else if (progress >= 0.4 && progress < 0.5) {
+        // Do nothing - snake is not visible
+      }
+      // Going from right to left (second half of the cycle)
+      else if (progress >= 0.5 && progress < 0.9) {
         direction = -1;
-        // Adjust progress to cover full journey in remaining time
-        let adjustedProgress = (progress - 0.55) / 0.45;
         
-        // Calculate leading X position to move from right to left
-        const leadingX = window.innerWidth + 200 - (window.innerWidth + 400) * adjustedProgress;
+        // Normalized progress for the second half (0-1 range)
+        const rightToLeftProgress = (progress - 0.5) / 0.4;
         
-        // Calculate vertical wave pattern using sine
-        points[0].x = leadingX;
-        points[0].y = window.innerHeight / 2 + Math.sin(adjustedProgress * Math.PI * 3) * amplitude;
+        // Calculate start position (right edge plus snake length)
+        const rightStart = window.innerWidth + totalSnakeLength;
         
-        // Update following segments with physics-based following
+        // Calculate how far to move the snake
+        const moveDistance = rightStart - rightToLeftProgress * (rightStart + totalSnakeLength);
+        
+        // Update head position with a sine wave
+        points[0].x = moveDistance;
+        points[0].y = window.innerHeight / 2 + Math.sin(rightToLeftProgress * Math.PI * 4) * amplitude;
+        
+        // Update following segments
         for (let i = 1; i < segments; i++) {
           const dx = points[i-1].x - points[i].x;
           const dy = points[i-1].y - points[i].y;
@@ -177,10 +193,15 @@ const Snake = () => {
           }
         }
         
-        // Draw snake
-        drawSnake();
+        // Only draw if at least the head is still visible
+        if (points[0].x < window.innerWidth + 100) {
+          drawSnake();
+        }
       }
-      // In the gaps (0.45-0.55 and 0.0-0.1), the snake is not drawn, creating a disappearing effect
+      // Final pause before restarting the cycle
+      else {
+        // Do nothing - snake is not visible
+      }
       
       // Request next frame
       animationId = requestAnimationFrame(draw);
@@ -276,11 +297,18 @@ const Snake = () => {
       // Draw snake head
       const headPoint = bodyPath[0];
       
-      // Update eye position
-      eyePosition = {
-        x: headPoint.x + Math.cos(headPoint.angle + Math.PI/5) * 18,
-        y: headPoint.y + Math.sin(headPoint.angle + Math.PI/5) * 14
-      };
+      // Update eye position based on direction
+      if (direction === 1) { // Moving right
+        eyePosition = {
+          x: headPoint.x + Math.cos(headPoint.angle + Math.PI/5) * 18,
+          y: headPoint.y + Math.sin(headPoint.angle + Math.PI/5) * 14
+        };
+      } else { // Moving left
+        eyePosition = {
+          x: headPoint.x + Math.cos(headPoint.angle - Math.PI/5) * 18,
+          y: headPoint.y + Math.sin(headPoint.angle - Math.PI/5) * 14
+        };
+      }
       
       // Draw the eye
       drawSnakeEye(eyePosition.x, eyePosition.y);
