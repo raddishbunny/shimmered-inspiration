@@ -1,5 +1,5 @@
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface Point {
   x: number;
@@ -26,11 +26,11 @@ const Snake = () => {
     window.addEventListener('resize', resizeCanvas);
     
     // Snake properties
-    const segments = 40;
+    const segments = 50; // More segments for a bigger snake
     const points: Point[] = [];
-    const segmentLength = 25;
-    const amplitude = 40; // Increased amplitude for more dramatic curves
-    const period = 12000; // 12 seconds for full cycle
+    const segmentLength = 30; // Longer segments for a bigger snake
+    const amplitude = 60; // Amplitude for vertical movement
+    const period = 18000; // 18 seconds for full back and forth cycle
     
     // Initialize points
     for (let i = 0; i < segments; i++) {
@@ -41,17 +41,17 @@ const Snake = () => {
     }
     
     // Scales properties
-    const scaleSize = 15;
-    const scaleVariation = 3;
+    const scaleSize = 20; // Bigger scales
+    const scaleVariation = 4;
     
     // Snake eye properties
     let eyePosition = { x: 0, y: 0 };
-    let eyeSize = 12;
-    let pupilSize = 6;
+    let eyeSize = 15; // Bigger eye
+    let pupilSize = 8;
     
     let animationId: number;
     let startTime = Date.now();
-    let progress = 0;
+    let direction = 1; // 1 for right, -1 for left
     
     const drawScale = (x: number, y: number, size: number, angle: number) => {
       ctx.save();
@@ -119,14 +119,24 @@ const Snake = () => {
       
       // Calculate elapsed time and progress
       const elapsed = Date.now() - startTime;
-      progress = (elapsed % period) / period;
+      let progress = (elapsed % period) / period;
+      
+      // Check if we need to change direction
+      if (progress >= 0.5 && direction === 1) {
+        direction = -1; // Change to left
+      } else if (progress < 0.5 && direction === -1) {
+        direction = 1; // Change to right
+      }
+      
+      // Adjust progress based on direction
+      let adjustedProgress = direction === 1 ? progress * 2 : (1 - (progress - 0.5) * 2);
       
       // Update points positions
-      const leadingX = (window.innerWidth + 200) * progress - 100;
+      const leadingX = (window.innerWidth + 400) * adjustedProgress - 200;
       
-      // Snake head follows a sinusoidal path
+      // Snake head position
       points[0].x = leadingX;
-      points[0].y = window.innerHeight / 2 + Math.sin(progress * Math.PI * 2) * amplitude;
+      points[0].y = window.innerHeight / 2 + Math.sin(adjustedProgress * Math.PI) * amplitude;
       
       // Update following segments with physics-based following
       for (let i = 1; i < segments; i++) {
@@ -199,14 +209,14 @@ const Snake = () => {
         points[segments-1].y
       );
       
-      ctx.lineWidth = 28;
+      ctx.lineWidth = 35; // Thicker snake body
       ctx.strokeStyle = 'rgba(10, 10, 10, 0.5)';
       ctx.stroke();
       
       // Draw scales along the body
       for (let i = 0; i < bodyPath.length; i++) {
         const point = bodyPath[i];
-        const width = i === 0 ? 22 : (i === bodyPath.length - 1 ? 10 : 20);
+        const width = i === 0 ? 28 : (i === bodyPath.length - 1 ? 14 : 26);
         
         // Draw perpendicular scales
         for (let offset = -width; offset <= width; offset += scaleSize * 0.8) {
@@ -232,8 +242,8 @@ const Snake = () => {
       
       // Update eye position
       eyePosition = {
-        x: headPoint.x + Math.cos(headPoint.angle + Math.PI/5) * 12,
-        y: headPoint.y + Math.sin(headPoint.angle + Math.PI/5) * 10
+        x: headPoint.x + Math.cos(headPoint.angle + Math.PI/5) * 15,
+        y: headPoint.y + Math.sin(headPoint.angle + Math.PI/5) * 12
       };
       
       // Draw the eye
@@ -257,7 +267,7 @@ const Snake = () => {
     <canvas 
       ref={canvasRef} 
       className="fixed inset-0 z-0 pointer-events-none"
-      style={{ opacity: 0.8 }} // Increased opacity to make the snake more visible
+      style={{ opacity: 0.7 }} // Adjusted opacity
     />
   );
 };
