@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react';
 
 interface Point {
@@ -26,11 +25,11 @@ const Snake = () => {
     window.addEventListener('resize', resizeCanvas);
     
     // Snake properties
-    const segments = 50; // More segments for a bigger snake
+    const segments = 90; // Increased segments for a longer snake
     const points: Point[] = [];
-    const segmentLength = 30; // Longer segments for a bigger snake
-    const amplitude = 100; // Increased amplitude for more pronounced wave pattern
-    const period = 12000; // 12 seconds for full cycle
+    const segmentLength = 30; // Kept segment length
+    const amplitude = 100; // Kept amplitude for wave pattern
+    const period = 25000; // Increased period to 25 seconds for slower animation
     
     // Initialize points (initially off-screen to the left)
     for (let i = 0; i < segments; i++) {
@@ -41,12 +40,12 @@ const Snake = () => {
     }
     
     // Scales properties
-    const scaleSize = 24; // Bigger scales
+    const scaleSize = 24; // Kept scale size
     const scaleVariation = 5;
     
     // Snake eye properties
     let eyePosition = { x: 0, y: 0 };
-    let eyeSize = 18; // Bigger eye
+    let eyeSize = 18; // Kept eye size
     let pupilSize = 9;
     
     let animationId: number;
@@ -328,7 +327,7 @@ const Snake = () => {
     <canvas 
       ref={canvasRef} 
       className="fixed inset-0 z-0 pointer-events-none"
-      style={{ opacity: 0.7 }} // Adjusted opacity
+      style={{ opacity: 0.7 }} // Kept opacity
     />
   );
 };
