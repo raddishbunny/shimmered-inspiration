@@ -29,8 +29,8 @@ const Snake = () => {
     const segments = 50; // More segments for a bigger snake
     const points: Point[] = [];
     const segmentLength = 30; // Longer segments for a bigger snake
-    const amplitude = 60; // Amplitude for vertical movement
-    const period = 18000; // 18 seconds for full back and forth cycle
+    const amplitude = 100; // Increased amplitude for more pronounced wave pattern
+    const period = 12000; // 12 seconds for full back and forth cycle (faster)
     
     // Initialize points
     for (let i = 0; i < segments; i++) {
@@ -41,13 +41,13 @@ const Snake = () => {
     }
     
     // Scales properties
-    const scaleSize = 20; // Bigger scales
-    const scaleVariation = 4;
+    const scaleSize = 24; // Bigger scales
+    const scaleVariation = 5;
     
     // Snake eye properties
     let eyePosition = { x: 0, y: 0 };
-    let eyeSize = 15; // Bigger eye
-    let pupilSize = 8;
+    let eyeSize = 18; // Bigger eye
+    let pupilSize = 9;
     
     let animationId: number;
     let startTime = Date.now();
@@ -121,36 +121,72 @@ const Snake = () => {
       const elapsed = Date.now() - startTime;
       let progress = (elapsed % period) / period;
       
-      // Check if we need to change direction
-      if (progress >= 0.5 && direction === 1) {
-        direction = -1; // Change to left
-      } else if (progress < 0.5 && direction === -1) {
-        direction = 1; // Change to right
-      }
-      
-      // Adjust progress based on direction
-      let adjustedProgress = direction === 1 ? progress * 2 : (1 - (progress - 0.5) * 2);
-      
-      // Update points positions
-      const leadingX = (window.innerWidth + 400) * adjustedProgress - 200;
-      
-      // Snake head position
-      points[0].x = leadingX;
-      points[0].y = window.innerHeight / 2 + Math.sin(adjustedProgress * Math.PI) * amplitude;
-      
-      // Update following segments with physics-based following
-      for (let i = 1; i < segments; i++) {
-        const dx = points[i-1].x - points[i].x;
-        const dy = points[i-1].y - points[i].y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+      // Determine if snake should be visible and which direction it's moving
+      if (progress < 0.45) {
+        // Snake moving right
+        direction = 1;
+        // Adjust progress to cover full journey in first 45% of the time
+        let adjustedProgress = progress / 0.45;
         
-        if (distance > segmentLength) {
-          const angle = Math.atan2(dy, dx);
-          points[i].x += Math.cos(angle) * (distance - segmentLength);
-          points[i].y += Math.sin(angle) * (distance - segmentLength);
+        // Calculate leading X position to move from left to right
+        const leadingX = -200 + (window.innerWidth + 400) * adjustedProgress;
+        
+        // Calculate vertical wave pattern using sine
+        points[0].x = leadingX;
+        points[0].y = window.innerHeight / 2 + Math.sin(adjustedProgress * Math.PI * 3) * amplitude;
+        
+        // Update following segments with physics-based following
+        for (let i = 1; i < segments; i++) {
+          const dx = points[i-1].x - points[i].x;
+          const dy = points[i-1].y - points[i].y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance > segmentLength) {
+            const angle = Math.atan2(dy, dx);
+            points[i].x += Math.cos(angle) * (distance - segmentLength);
+            points[i].y += Math.sin(angle) * (distance - segmentLength);
+          }
         }
+        
+        // Draw snake
+        drawSnake();
+      } 
+      else if (progress > 0.55 && progress < 1) {
+        // Snake moving left
+        direction = -1;
+        // Adjust progress to cover full journey in remaining time
+        let adjustedProgress = (progress - 0.55) / 0.45;
+        
+        // Calculate leading X position to move from right to left
+        const leadingX = window.innerWidth + 200 - (window.innerWidth + 400) * adjustedProgress;
+        
+        // Calculate vertical wave pattern using sine
+        points[0].x = leadingX;
+        points[0].y = window.innerHeight / 2 + Math.sin(adjustedProgress * Math.PI * 3) * amplitude;
+        
+        // Update following segments with physics-based following
+        for (let i = 1; i < segments; i++) {
+          const dx = points[i-1].x - points[i].x;
+          const dy = points[i-1].y - points[i].y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance > segmentLength) {
+            const angle = Math.atan2(dy, dx);
+            points[i].x += Math.cos(angle) * (distance - segmentLength);
+            points[i].y += Math.sin(angle) * (distance - segmentLength);
+          }
+        }
+        
+        // Draw snake
+        drawSnake();
       }
+      // In the gaps (0.45-0.55 and 0.0-0.1), the snake is not drawn, creating a disappearing effect
       
+      // Request next frame
+      animationId = requestAnimationFrame(draw);
+    };
+    
+    const drawSnake = () => {
       // Calculate snake body path for scale placement
       const bodyPath: { x: number; y: number; angle: number }[] = [];
       
@@ -209,14 +245,14 @@ const Snake = () => {
         points[segments-1].y
       );
       
-      ctx.lineWidth = 35; // Thicker snake body
+      ctx.lineWidth = 40; // Thicker snake body
       ctx.strokeStyle = 'rgba(10, 10, 10, 0.5)';
       ctx.stroke();
       
       // Draw scales along the body
       for (let i = 0; i < bodyPath.length; i++) {
         const point = bodyPath[i];
-        const width = i === 0 ? 28 : (i === bodyPath.length - 1 ? 14 : 26);
+        const width = i === 0 ? 32 : (i === bodyPath.length - 1 ? 16 : 30);
         
         // Draw perpendicular scales
         for (let offset = -width; offset <= width; offset += scaleSize * 0.8) {
@@ -242,15 +278,12 @@ const Snake = () => {
       
       // Update eye position
       eyePosition = {
-        x: headPoint.x + Math.cos(headPoint.angle + Math.PI/5) * 15,
-        y: headPoint.y + Math.sin(headPoint.angle + Math.PI/5) * 12
+        x: headPoint.x + Math.cos(headPoint.angle + Math.PI/5) * 18,
+        y: headPoint.y + Math.sin(headPoint.angle + Math.PI/5) * 14
       };
       
       // Draw the eye
       drawSnakeEye(eyePosition.x, eyePosition.y);
-      
-      // Request next frame
-      animationId = requestAnimationFrame(draw);
     };
     
     // Start animation
