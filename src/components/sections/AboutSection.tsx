@@ -13,7 +13,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ getRandomQuote }) => {
       <div 
         className="absolute inset-0 z-0 opacity-30"
         style={{
-          backgroundImage: 'url(/public/lovable-uploads/1f287637-3ba7-430e-947d-2b721c9f6477.png)',
+          backgroundImage: 'url(/lovable-uploads/1f287637-3ba7-430e-947d-2b721c9f6477.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
