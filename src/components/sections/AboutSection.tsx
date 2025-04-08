@@ -1,5 +1,5 @@
 
-import { FadeIn } from '@/components';
+import { FadeIn, FloatingLetters } from '@/components';
 import { toast } from 'sonner';
 
 interface AboutSectionProps {
@@ -8,8 +8,23 @@ interface AboutSectionProps {
 
 const AboutSection: React.FC<AboutSectionProps> = ({ getRandomQuote }) => {
   return (
-    <section id="about" className="section py-24">
-      <div className="container mx-auto">
+    <section id="about" className="section py-24 relative overflow-hidden">
+      {/* Background Image with reduced opacity */}
+      <div 
+        className="absolute inset-0 z-0 opacity-30"
+        style={{
+          backgroundImage: 'url(/public/lovable-uploads/1f287637-3ba7-430e-947d-2b721c9f6477.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          mixBlendMode: 'overlay'
+        }}
+      ></div>
+      
+      {/* Always active floating letters */}
+      <FloatingLetters text="reputation" className="z-10 opacity-50" delay={0} duration={6000} />
+      
+      <div className="container mx-auto relative z-20">
         <FadeIn className="mb-12 text-center">
           <h2 className="heading-serif mb-4">About Me</h2>
           <div className="w-20 h-1 bg-purple mx-auto mb-4"></div>

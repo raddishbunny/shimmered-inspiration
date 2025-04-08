@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 
 interface FloatingLettersProps {
@@ -16,7 +15,6 @@ const FloatingLetters: React.FC<FloatingLettersProps> = ({
 }) => {
   const [letters, setLetters] = useState<string[]>([]);
   const [positions, setPositions] = useState<{x: number, y: number}[]>([]);
-  const [started, setStarted] = useState(false);
 
   useEffect(() => {
     // Random newspaper-like words
@@ -49,22 +47,20 @@ const FloatingLetters: React.FC<FloatingLettersProps> = ({
 
     generateLetters();
     
-    // Start animation after delay
-    const timer = setTimeout(() => {
-      setStarted(true);
-    }, delay);
-
-    return () => clearTimeout(timer);
-  }, [delay]);
+    // Regenerate letters every 30 seconds to keep the animation fresh
+    const intervalId = setInterval(() => {
+      generateLetters();
+    }, 30000);
+    
+    return () => clearInterval(intervalId);
+  }, []);
 
   return (
     <div className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}>
       {letters.map((letter, index) => (
         <div
           key={index}
-          className={`absolute text-xs md:text-sm opacity-0 text-foreground/70 font-serif uppercase tracking-wider ${
-            started ? 'animate-float-letter' : ''
-          }`}
+          className="absolute text-xs md:text-sm opacity-0 text-foreground/70 font-serif uppercase tracking-wider animate-float-letter"
           style={{
             left: `${positions[index]?.x}%`,
             top: `${positions[index]?.y}%`,
